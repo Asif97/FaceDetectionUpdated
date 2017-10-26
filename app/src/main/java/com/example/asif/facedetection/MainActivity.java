@@ -68,8 +68,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     private Bitmap myBitmap;
 
-    protected MediaPlayer mediaPlayer;
-
+    public MediaPlayer mediaPlayer;
 
 
     private CameraBridgeViewBase myOpenCVCameraView;
@@ -94,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                         //Storing Data to External Memory(SD)
                         byte[] buffer = new byte[4096];
                         int bytesReadFace;
-                        while ((bytesReadFace = ISFace.read(buffer)) != -1){
+                        while ((bytesReadFace = ISFace.read(buffer)) != -1) {
                             OSFace.write(buffer, 0, bytesReadFace);
 
                         }
@@ -103,13 +102,13 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
                         InputStream ISEyes = getResources().openRawResource((R.raw.haarcascade_eye_tree_eyeglasses));
                         File cascadeDirectoryEyes = getDir("cascadeeyes", Context.MODE_PRIVATE);
-                        myEyesCascadeFile = new File(cascadeDirectoryEyes,"haarcascade_eye_tree_eyeglasses.xml");
+                        myEyesCascadeFile = new File(cascadeDirectoryEyes, "haarcascade_eye_tree_eyeglasses.xml");
                         FileOutputStream OSEyes = new FileOutputStream(myEyesCascadeFile);
 
                         byte[] buffer2 = new byte[4096];
                         int bytesReadEyes;
-                        while((bytesReadEyes = ISEyes.read(buffer2))!=-1){
-                            OSEyes.write(buffer2,0,bytesReadEyes);
+                        while ((bytesReadEyes = ISEyes.read(buffer2)) != -1) {
+                            OSEyes.write(buffer2, 0, bytesReadEyes);
                         }
                         ISEyes.close();
                         OSEyes.close();
@@ -126,10 +125,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
                         myEyeDetector = new CascadeClassifier(myEyesCascadeFile.getAbsolutePath());
                         myEyeDetector.load(myEyesCascadeFile.getAbsolutePath());
-                        if(myEyeDetector.empty()){
-                            Log.e(TAG,"Failed to load Eye Cascade");
-                        }else{
-                            Log.i(TAG,"Loaded Eye Cascade Successfully");
+                        if (myEyeDetector.empty()) {
+                            Log.e(TAG, "Failed to load Eye Cascade");
+                        } else {
+                            Log.i(TAG, "Loaded Eye Cascade Successfully");
                         }
                         cascadeDirectoryEyes.delete();
 
@@ -142,7 +141,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                     myOpenCVCameraView.enableFpsMeter();
                     myOpenCVCameraView.enableView();
 
-                } break;
+                }
+                break;
                 default: {
                     super.onManagerConnected(status);
                 }
@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         myOpenCVCameraView.setVisibility(CameraBridgeViewBase.VISIBLE);
         myOpenCVCameraView.setCvCameraViewListener(this);
 
-        final MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(),R.raw.sample);
+        mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.sample);
 
 
     }
@@ -228,98 +228,77 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             }
 
         }
-       /* MatOfRect Face = new MatOfRect();
 
+        MatOfRect Face = new MatOfRect();
         if ((myFaceDetector) != null) {
             //To Detect Faces
             myFaceDetector.detectMultiScale(mGrey, Face, 1.05, 2, 2, new Size(myAbsoluteFaceSize, myAbsoluteFaceSize), new Size());
         }
         Rect[] FaceArray = Face.toArray();
-        if(FaceArray.length > 0){
-            for(int i = 0;i<FaceArray.length;i++){
-            Imgproc.rectangle(mRgba, FaceArray[i].tl(), FaceArray[i].br(), new Scalar(0, 255, 0, 255), 3);
-            Mat faceROI = mGrey.submat(FaceArray[i]);
+        if (FaceArray.length > 0) {
+            for (int i = 0; i < FaceArray.length; i++) {
+                Imgproc.rectangle(mRgba, FaceArray[i].tl(), FaceArray[i].br(), new Scalar(0, 255, 0, 255), 3);
+            }
+        }
+
+
             MatOfRect Eyes = new MatOfRect();
-            myEyeDetector.detectMultiScale(faceROI,Eyes,1.05,2,2,new Size(myAbsoluteFaceSize,myAbsoluteFaceSize),new Size());
+            if (myEyeDetector != null) {
+                //To Detect Eyes
+                myEyeDetector.detectMultiScale(mRgba, Eyes, 1.05, 2, 2, new Size(myAbsoluteFaceSize, myAbsoluteFaceSize), new Size());
+            }
+
+            //Stores Detected Eyes in an Array
             Rect[] EyesArray = Eyes.toArray();
-            for(int j = 0;j<=EyesArray.length;j++){
-            Imgproc.rectangle(Face,EyesArray[j].tl(),EyesArray[j].br(),new Scalar(0,255,0,255),3);}
-            }
-        }*/
-
-
-
-
-        /*for (int i = 0; i < FaceArray.length; i++) {
-            Imgproc.rectangle(mRgba, FaceArray[i].tl(), FaceArray[i].br(), new Scalar(0, 255, 0, 255), 3);
-            Mat faceROI = mGrey.submat(FaceArray[i]);
-            MatOfRect Eyes = new MatOfRect();
-            myEyeDetector.detectMultiScale(faceROI,Eyes,1.05,2,2,new Size(myAbsoluteFaceSize,myAbsoluteFaceSize),new Size());
-
-
-        }*/
-
-        MatOfRect Eyes = new MatOfRect();
-        if (myEyeDetector != null) {
-            //To Detect Eyes
-            myEyeDetector.detectMultiScale(mRgba, Eyes, 1.05, 2, 2, new Size(myAbsoluteFaceSize, myAbsoluteFaceSize), new Size());
-        }
-
-        //Stores Detected Eyes in an Array
-        Rect[] EyesArray = Eyes.toArray();
-        //To Map a Rectangle Around Eyes
-        for (int j = 0; j < EyesArray.length; j++) {
-            Imgproc.rectangle(mRgba, EyesArray[j].tl(), EyesArray[j].br(), new Scalar(0, 255, 0, 255), 3);
-        }
-
-
-        //To Sound Alarm
-        mPreviousEyesState = EyesArray.length;
-        try {
-            if (EyesArray.length < 2 && mPreviousEyesState >= 2) { //sometimes it picks up a 3rd eye lol
-                mediaPlayer.start();
-            } else {
-                mediaPlayer.pause();
+            //To Map a Rectangle Around Eyes
+            for (int j = 0; j < EyesArray.length; j++) {
+                Imgproc.rectangle(mRgba, EyesArray[j].tl(), EyesArray[j].br(), new Scalar(0, 255, 0, 255), 3);
             }
 
-        }catch(Exception e){
-            e.printStackTrace();
-        }
 
+            //To Sound Alarm
 
+            try {
+                if (FaceArray.length>0&&EyesArray.length<2) { //sometimes it picks up a 3rd eye lol
+                    mediaPlayer.start();
+                } else {
+                    mediaPlayer.stop();
+                    try
+                    {
+                        mediaPlayer.prepare();
+                    }
+                    catch(Exception e2){
+                        Log.d(TAG,"Failed here");}
 
+                }
 
-
-
-        //To Detect Amount of Redness in the Eyes
-        try{
-        int R = 0;
-
-        try{
-            Utils.matToBitmap(Eyes,myBitmap);
-        }catch (CvException e){Log.d("Pixel Exception",e.getMessage());}
-
-
-
-        for(int i = 0;i<EyesArray[1].width;i++){
-            for(int j = 0;j<EyesArray[1].height;j++){
-               int pixelclr = myBitmap.getPixel(i,j);
-                R += Color.red(pixelclr);
-
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to Configure Alarm");
             }
-        } }catch(Exception e1){
-            e1.printStackTrace();
+
+
+
+
+            //To Detect Amount of Redness in the Eyes
+            try {
+                int R = 0;
+                Utils.matToBitmap(Eyes, myBitmap);
+
+                for (int i = 0; i < EyesArray[1].width; i++) {
+                    for (int j = 0; j < EyesArray[1].height; j++) {
+                        int pixelclr = myBitmap.getPixel(i, j);
+                        R += Color.red(pixelclr);
+
+                    }
+                }
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+
+
+            return mRgba;
         }
-
-
-
-
-
-
-
-        return mRgba;
     }
-}
 
 
 
