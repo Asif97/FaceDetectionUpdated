@@ -43,13 +43,7 @@ import android.os.AsyncTask;
 
 import android.view.View;
 import android.view.ViewGroup;
-
-
-
-
-
-
-
+import android.widget.Button;
 
 
 public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
@@ -74,6 +68,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private CameraBridgeViewBase myOpenCVCameraView;
 
     private int mPreviousEyesState = -1;
+
+    private Button btn_start;
+
+
 
 
     private BaseLoaderCallback mLoaderCallBack = new BaseLoaderCallback(this) {
@@ -228,18 +226,18 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             }
 
         }
-
+         /*
         MatOfRect Face = new MatOfRect();
         if ((myFaceDetector) != null) {
             //To Detect Faces
             myFaceDetector.detectMultiScale(mGrey, Face, 1.05, 2, 2, new Size(myAbsoluteFaceSize, myAbsoluteFaceSize), new Size());
         }
         Rect[] FaceArray = Face.toArray();
-        if (FaceArray.length > 0) {
-            for (int i = 0; i < FaceArray.length; i++) {
-                Imgproc.rectangle(mRgba, FaceArray[i].tl(), FaceArray[i].br(), new Scalar(0, 255, 0, 255), 3);
-            }
-        }
+               //Draw Rect around face
+                Imgproc.rectangle(mRgba, FaceArray[0].tl(), FaceArray[0].br(), new Scalar(0, 255, 0, 255), 3);
+                */
+
+
 
 
             MatOfRect Eyes = new MatOfRect();
@@ -257,20 +255,14 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
 
             //To Sound Alarm
-
             try {
-                if (FaceArray.length>0&&EyesArray.length<2) { //sometimes it picks up a 3rd eye lol
+                if (EyesArray.length<2) { //sometimes it picks up a 3rd eye lol
                     mediaPlayer.start();
                 } else {
                     mediaPlayer.stop();
-                    try
-                    {
-                        mediaPlayer.prepare();
-                    }
-                    catch(Exception e2){
-                        Log.d(TAG,"Failed here");}
-
+                    mediaPlayer.prepare();
                 }
+
 
             } catch (Exception e) {
                 Log.e(TAG, "Failed to Configure Alarm");
