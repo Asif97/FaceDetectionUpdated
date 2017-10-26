@@ -11,6 +11,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
 import android.view.KeyCharacterMap;
 import android.view.WindowManager;
@@ -35,8 +36,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import android.media.MediaPlayer;
+
 
 import android.os.AsyncTask;
+
+import android.view.View;
+import android.view.ViewGroup;
+
 
 
 
@@ -60,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private CascadeClassifier myEyeDetector;
 
     private Bitmap myBitmap;
+
+    protected MediaPlayer mediaPlayer;
 
 
 
@@ -155,8 +164,11 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         myOpenCVCameraView.setVisibility(CameraBridgeViewBase.VISIBLE);
         myOpenCVCameraView.setCvCameraViewListener(this);
 
+        final MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(),R.raw.sample);
+
 
     }
+
 
     @Override
     protected void onPause() {
@@ -189,11 +201,13 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     @Override
     public void onCameraViewStarted(int width, int height) {
+
         mGrey = new Mat();
         mRgba = new Mat();
 
 
     }
+
 
     @Override
     public void onCameraViewStopped() {
@@ -248,30 +262,37 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         MatOfRect Eyes = new MatOfRect();
         if (myEyeDetector != null) {
             //To Detect Eyes
-            myEyeDetector.detectMultiScale(mRgba, Eyes, 1.05, 2, 2, new Size(myAbsoluteFaceSize, myAbsoluteFaceSize), new Size());}
+            myEyeDetector.detectMultiScale(mRgba, Eyes, 1.05, 2, 2, new Size(myAbsoluteFaceSize, myAbsoluteFaceSize), new Size());
+        }
 
         //Stores Detected Eyes in an Array
         Rect[] EyesArray = Eyes.toArray();
         //To Map a Rectangle Around Eyes
-        for (int j = 0;j<EyesArray.length;j++){
-            Imgproc.rectangle(mRgba,EyesArray[j].tl(),EyesArray[j].br(),new Scalar(0,255,0,255),3);
+        for (int j = 0; j < EyesArray.length; j++) {
+            Imgproc.rectangle(mRgba, EyesArray[j].tl(), EyesArray[j].br(), new Scalar(0, 255, 0, 255), 3);
         }
 
 
         //To Sound Alarm
-        if(EyesArray.length<2 && mPreviousEyesState>=2){ //sometimes it picks up a 3rd eye lol
-           try {
-               Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-               Ringtone ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
-               ringtone.play();
-           }catch(Exception e){
-               e.printStackTrace();}
-            mPreviousEyesState = EyesArray.length;
+        mPreviousEyesState = EyesArray.length;
+        try {
+            if (EyesArray.length < 2 && mPreviousEyesState >= 2) { //sometimes it picks up a 3rd eye lol
+                mediaPlayer.start();
+            } else {
+                mediaPlayer.pause();
+            }
 
+        }catch(Exception e){
+            e.printStackTrace();
         }
 
 
+
+
+
+
         //To Detect Amount of Redness in the Eyes
+        try{
         int R = 0;
 
         try{
@@ -286,6 +307,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 R += Color.red(pixelclr);
 
             }
+        } }catch(Exception e1){
+            e1.printStackTrace();
         }
 
 
