@@ -3,7 +3,9 @@ package com.example.asif.facedetection;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Camera;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.*;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -17,6 +19,8 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
+import org.opencv.core.CvException;
 import org.opencv.core.Mat;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.core.MatOfRect;
@@ -30,6 +34,11 @@ import java.io.FileOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+
+
+import android.os.AsyncTask;
+
+
 
 
 
@@ -49,6 +58,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     private CascadeClassifier myFaceDetector;
     private CascadeClassifier myEyeDetector;
+
+    private Bitmap myBitmap;
+
+
 
     private CameraBridgeViewBase myOpenCVCameraView;
 
@@ -237,7 +250,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             //To Detect Eyes
             myEyeDetector.detectMultiScale(mRgba, Eyes, 1.05, 2, 2, new Size(myAbsoluteFaceSize, myAbsoluteFaceSize), new Size());}
 
-        Rect[] EyesArray = Eyes.toArray(); //Draw Rectangle Around Eyes
+        //Stores Detected Eyes in an Array
+        Rect[] EyesArray = Eyes.toArray();
+        //To Map a Rectangle Around Eyes
         for (int j = 0;j<EyesArray.length;j++){
             Imgproc.rectangle(mRgba,EyesArray[j].tl(),EyesArray[j].br(),new Scalar(0,255,0,255),3);
         }
@@ -252,11 +267,26 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
            }catch(Exception e){
                e.printStackTrace();}
             mPreviousEyesState = EyesArray.length;
+
         }
 
 
         //To Detect Amount of Redness in the Eyes
-        
+        int R = 0;
+
+        try{
+            Utils.matToBitmap(Eyes,myBitmap);
+        }catch (CvException e){Log.d("Pixel Exception",e.getMessage());}
+
+
+
+        for(int i = 0;i<EyesArray[1].width;i++){
+            for(int j = 0;j<EyesArray[1].height;j++){
+               int pixelclr = myBitmap.getPixel(i,j);
+                R += Color.red(pixelclr);
+
+            }
+        }
 
 
 
